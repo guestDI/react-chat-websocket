@@ -1,17 +1,18 @@
-import socketClient  from "socket.io-client";
-import Chat from "./chat/Chat";
+'use client';
 
-const SERVER = "http://127.0.0.1:8081";
+import Chat from './chat/Chat';
+import { useEffect } from 'react';
+
+const USERNAME = 'di_user';
 
 export default function Home() {
-  const socket = socketClient (SERVER);
+  useEffect(() => {
+    localStorage.setItem('userName', USERNAME);
+  }, []);
 
   return (
-    <main >
-      <Chat/>
-      {/* <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        
-      </div> */}
+    <main>
+      <Chat />
     </main>
   );
 }

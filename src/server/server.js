@@ -2,32 +2,68 @@ const app = require('express')();
 const http = require('http').createServer(app);
 
 const PORT = 8081;
-const STATIC_CHANNELS = [{id: 1, name: 'global_notifications'}, {id: 2, name: 'global_chat'}];
+const STATIC_CHANNELS = [
+  {
+    name: 'Global chat',
+    participants: 0,
+    id: 1,
+    sockets: [],
+  },
+  {
+    name: 'Funny',
+    participants: 0,
+    id: 2,
+    sockets: [],
+  },
+];
 
 http.listen(PORT, () => {
-    console.log(`listening on *:${PORT}`);
+  console.log(`listening on *:${PORT}`);
 });
 const cors = require('cors');
 
 app.use(cors());
 
 const socketIO = require('socket.io')(http, {
-    cors: {
-        origin: "http://localhost:3000"
-    }
+  cors: {
+    origin: 'http://localhost:3000',
+  },
 });
 
-socketIO.on('connection', (socket) => { /* socket object may be used to send specific messages to the new connected client */
-    console.log(`⚡: ${socket.id} user just connected!`);
+socketIO.on('connection', (socket) => {
+  console.log(`⚡: ${socket.id} user just connected!`);
 
-    socket.on('disconnect', () => {
-        console.log('🔥: A user disconnected');
-      });
-    socket.emit('connection', null);
+  socket.on('channel-join', (id) => {
+    console.log('channel join', id);
+    STATIC_CHANNELS.forEach((c) => {
+      if (c.id === id) {
+        if (c.sockets.indexOf(socket.id) == -1) {
+          c.sockets.push(socket.id);
+          c.participants++;
+          socketIO.emit('channel', c);
+        }
+      } else {
+        let index = c.sockets.indexOf(socket.id);
+        if (index != -1) {
+          c.sockets.splice(index, 1);
+          c.participants--;
+          socketIO.emit('channel', c);
+        }
+      }
+    });
+
+    return id;
+  });
+
+  socket.emit('connection', null);
+});
+
+socketIO.on('disconnect', () => {
+  console.log('🔥: A user disconnected');
 });
 
 app.get('/getChannels', (req, res) => {
-    res.json({
-        channels: STATIC_CHANNELS
-    })
+  res.json({
+    channels: STATIC_CHANNELS,
+  });
 });
