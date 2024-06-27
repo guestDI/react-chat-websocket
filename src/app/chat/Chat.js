@@ -11,11 +11,26 @@ const SERVER = 'http://127.0.0.1:8081';
 const socket = socketIO.connect(SERVER);
 const Chat = () => {
   const [channels, setChannels] = useState([]);
+  const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    socket.on('messageResponse', (data) => setMessages([...messages, data]));
+  }, [socket, messages]);
 
   const handleChannelSelect = (id) => {
-    console.log('id', id);
-    socket.emit('channel-join', id, (ack) => {});
+    socket.emit('channel-join', id, () => {});
   };
+
+  // socket.on('channel', (channel) => {
+  //   let oldChannels = channels;
+  //   oldChannels.forEach((c) => {
+  //     if (c.id === channel.id) {
+  //       c.participants = channel.participants;
+  //     }
+  //   });
+
+  //   setChannels(oldChannels);
+  // });
 
   const loadChannels = async () => {
     fetch('http://127.0.0.1:8081/getChannels').then(async (response) => {
@@ -35,8 +50,8 @@ const Chat = () => {
         handleChannelSelect={handleChannelSelect}
       />
       <div className="flex flex-col w-full">
-        <MessagesPanel />
-        <MessagesPanelFooter />
+        <MessagesPanel messages={messages} />
+        <MessagesPanelFooter socket={socket} />
       </div>
     </div>
   );

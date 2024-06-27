@@ -34,7 +34,6 @@ socketIO.on('connection', (socket) => {
   console.log(`⚡: ${socket.id} user just connected!`);
 
   socket.on('channel-join', (id) => {
-    console.log('channel join', id);
     STATIC_CHANNELS.forEach((c) => {
       if (c.id === id) {
         if (c.sockets.indexOf(socket.id) == -1) {
@@ -55,11 +54,15 @@ socketIO.on('connection', (socket) => {
     return id;
   });
 
-  socket.emit('connection', null);
-});
+  socket.on('message', (data) => {
+    socketIO.emit('messageResponse', data);
+  });
 
-socketIO.on('disconnect', () => {
-  console.log('🔥: A user disconnected');
+  socket.on('disconnect', () => {
+    console.log('🔥: A user disconnected');
+  });
+
+  socket.emit('connection', null);
 });
 
 app.get('/getChannels', (req, res) => {
