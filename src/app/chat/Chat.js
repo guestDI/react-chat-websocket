@@ -21,16 +21,16 @@ const Chat = () => {
     socket.emit('channel-join', id, () => {});
   };
 
-  // socket.on('channel', (channel) => {
-  //   let oldChannels = channels;
-  //   oldChannels.forEach((c) => {
-  //     if (c.id === channel.id) {
-  //       c.participants = channel.participants;
-  //     }
-  //   });
+  socket.on('channel', (channel) => {
+    let oldChannels = channels;
+    oldChannels.forEach((c) => {
+      if (c.id === channel.id) {
+        c.participants = channel.participants;
+      }
+    });
 
-  //   setChannels(oldChannels);
-  // });
+    setChannels(oldChannels);
+  });
 
   const loadChannels = async () => {
     fetch('http://127.0.0.1:8081/getChannels').then(async (response) => {
@@ -42,6 +42,8 @@ const Chat = () => {
   useEffect(() => {
     loadChannels();
   }, []);
+
+  console.log('channe', channels);
 
   return (
     <div className="w-full flex h-screen flex-row">

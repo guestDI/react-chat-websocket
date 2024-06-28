@@ -3,8 +3,7 @@
 import React, { useRef, useState } from 'react';
 import useAuth from '../hooks/useAuth';
 
-const USERNAME_EMPTY = 'Username is empty';
-const DISPLAY_NAME_EMPTY = 'Display name is empty';
+const FIELD_EMPTY = 'Field is empty';
 
 const Modal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
@@ -12,7 +11,7 @@ const Modal = ({ isOpen, onClose }) => {
   const displayNameRef = useRef('');
   const userNameRef = useRef('');
   const [error, setError] = useState(null);
-  const [isSignForm, setIsSignForm] = useState(true);
+  const [isLoginForm, setIsLoginForm] = useState(true);
 
   const { handleAuth, registerUser } = useAuth(onClose);
 
@@ -25,19 +24,17 @@ const Modal = ({ isOpen, onClose }) => {
     if (userName) {
       handleAuth(userName);
     } else {
-      setError(USERNAME_EMPTY);
+      setError(FIELD_EMPTY);
     }
 
-    setIsSignForm(false);
+    setIsLoginForm(false);
     if (displayName && userName) {
       registerUser({
         displayName,
         userName,
       });
-    } else if (!displayName) {
-      setError(DISPLAY_NAME_EMPTY);
-    } else if (!userName) {
-      setError(USERNAME_EMPTY);
+    } else {
+      setError(FIELD_EMPTY);
     }
   };
 
@@ -58,7 +55,7 @@ const Modal = ({ isOpen, onClose }) => {
               </button>
             </div>
             <form className="shadow-md rounded px-8 pt-6 pb-8 w-full">
-              {!isSignForm ? (
+              {!isLoginForm ? (
                 <div className="mb-4">
                   <label className="block text-sm mb-1">Display Name</label>
                   <input
@@ -73,12 +70,12 @@ const Modal = ({ isOpen, onClose }) => {
                   ref={userNameRef}
                   className="shadow appearance-none border rounded w-full py-2 px-1 text-black"
                 />
-                {error ? (
-                  <span className="text-xs text-red-700">{error}</span>
-                ) : null}
               </div>
             </form>
             <div className="flex items-center justify-end p-6 border-t border-solid border-blueGray-200 rounded-b">
+              {error ? (
+                <span className="text-xs text-red-700">{error}</span>
+              ) : null}
               <button
                 className="text-blue-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 cursor-pointer"
                 type="button"
@@ -91,7 +88,7 @@ const Modal = ({ isOpen, onClose }) => {
                 type="button"
                 onClick={onSubmit}
               >
-                {isSignForm ? 'Login' : 'Register'}
+                {isLoginForm ? 'Login' : 'Register'}
               </button>
             </div>
           </div>
