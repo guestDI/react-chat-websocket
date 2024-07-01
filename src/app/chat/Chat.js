@@ -5,6 +5,8 @@ import ChannelList from './ChannelList';
 import MessagesPanel from './MessagesPanel';
 import MessagesPanelFooter from './MessagePanelFooter';
 import socketIO from 'socket.io-client';
+import Notification from '../components/Notification';
+import { useAuthContext } from '../context/AuthContext';
 
 const SERVER = 'http://127.0.0.1:8081';
 
@@ -12,6 +14,12 @@ const socket = socketIO.connect(SERVER);
 const Chat = () => {
   const [channels, setChannels] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+
+  const { currentUser } = useAuthContext();
+
+  const createNotification = () =>
+    setNotifications([...notifications, { id: notifications.length }]);
 
   useEffect(() => {
     socket.on('messageResponse', (data) => setMessages([...messages, data]));
@@ -22,13 +30,14 @@ const Chat = () => {
   };
 
   socket.on('channel', (channel) => {
-    let oldChannels = channels;
+    let oldChannels = channels.slice(0);
     oldChannels.forEach((c) => {
       if (c.id === channel.id) {
         c.participants = channel.participants;
       }
     });
 
+    createNotification();
     setChannels(oldChannels);
   });
 
@@ -43,7 +52,7 @@ const Chat = () => {
     loadChannels();
   }, []);
 
-  console.log('channe', channels);
+  if (!currentUser) return;
 
   return (
     <div className="w-full flex h-screen flex-row">
@@ -52,9 +61,14 @@ const Chat = () => {
         handleChannelSelect={handleChannelSelect}
       />
       <div className="flex flex-col w-full">
-        <MessagesPanel messages={messages} />
-        <MessagesPanelFooter socket={socket} />
+        <MessagesPanel messages={messages} currentUser={currentUser} />
+        <MessagesPanelFooter socket={socket} currentUser={currentUser} />
       </div>
+      {notifications.map(({ id }) => (
+        <Notification onClose={() => {}} key={id}>
+          This is a notification!
+        </Notification>
+      ))}
     </div>
   );
 };

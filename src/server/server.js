@@ -50,8 +50,6 @@ socketIO.on('connection', (socket) => {
         }
       }
     });
-
-    return id;
   });
 
   socket.on('message', (data) => {

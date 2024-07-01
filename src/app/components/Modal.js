@@ -1,19 +1,19 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import useAuth from '../hooks/useAuth';
+import { useAuthContext } from '../context/AuthContext';
 
 const FIELD_EMPTY = 'Field is empty';
 
-const Modal = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
-
-  const displayNameRef = useRef('');
-  const userNameRef = useRef('');
+const Modal = () => {
   const [error, setError] = useState(null);
   const [isLoginForm, setIsLoginForm] = useState(true);
+  const displayNameRef = useRef('');
+  const userNameRef = useRef('');
 
-  const { handleAuth, registerUser } = useAuth(onClose);
+  const { handleAuth, registerUser, isOpen, closeModal } = useAuthContext();
+
+  if (!isOpen) return null;
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -47,7 +47,7 @@ const Modal = ({ isOpen, onClose }) => {
               <h3 className="text-2xl font=semibold">User Info</h3>
               <button
                 className="bg-transparent border-0 text-black float-right cursor-pointer"
-                onClick={onClose}
+                onClick={closeModal}
               >
                 <span className="text-white opacity-7 h-6 w-6 text-xl block ">
                   x
@@ -79,7 +79,7 @@ const Modal = ({ isOpen, onClose }) => {
               <button
                 className="text-blue-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 cursor-pointer"
                 type="button"
-                onClick={onClose}
+                onClick={closeModal}
               >
                 Close
               </button>

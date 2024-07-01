@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-const useAuth = (onClose) => {
+const useAuth = (onClose, setCurrentUser) => {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
@@ -14,6 +14,7 @@ const useAuth = (onClose) => {
     const userExists = users.find((u) => u.userName === username);
 
     if (userExists) {
+      setCurrentUser(userExists);
       onClose();
     }
   };
@@ -23,6 +24,7 @@ const useAuth = (onClose) => {
     existingUsers.push(user);
     setUsers(existingUsers);
     localStorage.setItem('users', JSON.stringify(existingUsers));
+    setCurrentUser(user);
     onClose();
   };
 

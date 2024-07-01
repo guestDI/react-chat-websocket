@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 
-const MessagesPanelFooter = ({ socket }) => {
+const MessagesPanelFooter = ({ socket, currentUser }) => {
   const [message, setMessage] = useState('');
 
   const handleSendMessage = (e) => {
@@ -11,7 +11,7 @@ const MessagesPanelFooter = ({ socket }) => {
     if (message.trim() && localStorage.getItem('userName')) {
       socket.emit('message', {
         text: message,
-        name: localStorage.getItem('userName'),
+        userName: currentUser.userName,
         id: `${socket.id}${Math.random()}`,
         socketID: socket.id,
       });
