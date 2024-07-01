@@ -21,6 +21,11 @@ const Chat = () => {
   const createNotification = () =>
     setNotifications([...notifications, { id: notifications.length }]);
 
+  const deleteNotification = (id) =>
+    setNotifications(
+      notifications.filter((notification) => notification.id !== id),
+    );
+
   useEffect(() => {
     socket.on('messageResponse', (data) => setMessages([...messages, data]));
   }, [socket, messages]);
@@ -65,7 +70,7 @@ const Chat = () => {
         <MessagesPanelFooter socket={socket} currentUser={currentUser} />
       </div>
       {notifications.map(({ id }) => (
-        <Notification onClose={() => {}} key={id}>
+        <Notification onClose={() => deleteNotification(id)} key={id}>
           This is a notification!
         </Notification>
       ))}

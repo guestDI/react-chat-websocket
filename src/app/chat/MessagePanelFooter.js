@@ -27,6 +27,7 @@ const MessagesPanelFooter = ({ socket, currentUser }) => {
           type="text"
           className="flex-1 p-2 border border-gray-300 rounded-lg bg-inherit"
           placeholder="Type a message..."
+          value={message}
           onChange={(e) => setMessage(e.target.value)}
         />
         <button

@@ -3,17 +3,8 @@
 import Chat from './chat/Chat';
 import Modal from './components/Modal';
 import { AuthContextProvider } from './context/AuthContext';
-import { useEffect, useState } from 'react';
-
-const USERNAME = 'di_user';
 
 export default function Home() {
-  const [isOpen, setIsOpen] = useState(true);
-
-  useEffect(() => {
-    localStorage.setItem('userName', USERNAME);
-  }, []);
-
   return (
     <main>
       <AuthContextProvider>

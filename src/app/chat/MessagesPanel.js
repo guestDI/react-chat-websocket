@@ -2,9 +2,7 @@ const MessagesPanel = ({ messages, currentUser }) => {
   return (
     <div className="flex-1 flex flex-col">
       <div className="p-4  border-b border-gray-200">
-        <h1 className="text-xl font-semibold">
-          Chat with {currentUser.displayName}
-        </h1>
+        <h1 className="text-xl font-semibold">Chat</h1>
       </div>
       <div className="flex-1 overflow-y-auto p-4">
         <div className="flex flex-col space-y-4">
@@ -17,7 +15,7 @@ const MessagesPanel = ({ messages, currentUser }) => {
               </div>
             ) : (
               <div className="flex items-end justify-end" key={message.id}>
-                <div className="bg-gray-200 p-3 rounded-lg max-w-xs">
+                <div className="bg-gray-400 p-3 rounded-lg max-w-xs">
                   {message.text}
                 </div>
               </div>
