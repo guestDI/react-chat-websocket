@@ -5,6 +5,9 @@ import React, { useState } from 'react';
 const MessagesPanelFooter = ({ socket, currentUser }) => {
   const [message, setMessage] = useState('');
 
+  const handleTyping = () =>
+    socket.emit('typing', `${currentUser.displayName} is typing`);
+
   const handleSendMessage = (e) => {
     e.preventDefault();
 
@@ -28,6 +31,7 @@ const MessagesPanelFooter = ({ socket, currentUser }) => {
           className="flex-1 p-2 border border-gray-300 rounded-lg bg-inherit"
           placeholder="Type a message..."
           value={message}
+          onKeyDown={handleTyping}
           onChange={(e) => setMessage(e.target.value)}
         />
         <button

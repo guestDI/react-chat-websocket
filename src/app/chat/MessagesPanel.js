@@ -1,4 +1,12 @@
-const MessagesPanel = ({ messages, currentUser }) => {
+import { useRef } from 'react';
+
+const MessagesPanel = ({ messages, currentUser, typingStatus }) => {
+  const lastMessageRef = useRef(null);
+
+  useEffect(() => {
+    lastMessageRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
   return (
     <div className="flex-1 flex flex-col">
       <div className="p-4  border-b border-gray-200">
@@ -22,6 +30,10 @@ const MessagesPanel = ({ messages, currentUser }) => {
             ),
           )}
         </div>
+        <div className="text-xs italic">
+          <p>{typingStatus}...</p>
+        </div>
+        <div ref={lastMessageRef} />
       </div>
     </div>
   );

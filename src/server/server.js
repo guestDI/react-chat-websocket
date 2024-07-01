@@ -52,6 +52,8 @@ socketIO.on('connection', (socket) => {
     });
   });
 
+  socket.on('typing', (data) => socket.broadcast.emit('typingResponse', data));
+
   socket.on('message', (data) => {
     socketIO.emit('messageResponse', data);
   });

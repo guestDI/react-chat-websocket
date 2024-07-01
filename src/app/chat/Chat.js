@@ -15,6 +15,7 @@ const Chat = () => {
   const [channels, setChannels] = useState([]);
   const [messages, setMessages] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  const [typingStatus, setTypingStatus] = useState('');
 
   const { currentUser } = useAuthContext();
 
@@ -34,17 +35,23 @@ const Chat = () => {
     socket.emit('channel-join', id, () => {});
   };
 
-  socket.on('channel', (channel) => {
-    let oldChannels = channels.slice(0);
-    oldChannels.forEach((c) => {
-      if (c.id === channel.id) {
-        c.participants = channel.participants;
-      }
-    });
+  useEffect(() => {
+    socket.on('channel', (channel) => {
+      let oldChannels = channels.slice(0);
+      oldChannels.forEach((c) => {
+        if (c.id === channel.id) {
+          c.participants = channel.participants;
+        }
+      });
 
-    createNotification();
-    setChannels(oldChannels);
-  });
+      createNotification();
+      setChannels(oldChannels);
+    });
+  }, [socket]);
+
+  useEffect(() => {
+    socket.on('typingResponse', (data) => setTypingStatus(data));
+  }, [socket]);
 
   const loadChannels = async () => {
     fetch('http://127.0.0.1:8081/getChannels').then(async (response) => {
@@ -66,7 +73,11 @@ const Chat = () => {
         handleChannelSelect={handleChannelSelect}
       />
       <div className="flex flex-col w-full">
-        <MessagesPanel messages={messages} currentUser={currentUser} />
+        <MessagesPanel
+          messages={messages}
+          currentUser={currentUser}
+          typingStatus={typingStatus}
+        />
         <MessagesPanelFooter socket={socket} currentUser={currentUser} />
       </div>
       {notifications.map(({ id }) => (
