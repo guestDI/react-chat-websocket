@@ -13,6 +13,7 @@ const SERVER = 'http://127.0.0.1:8081';
 const socket = socketIO.connect(SERVER);
 const Chat = () => {
   const [channels, setChannels] = useState([]);
+  const [selectedChannel, setSelectedChannel] = useState({});
   const [messages, setMessages] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [typingStatus, setTypingStatus] = useState('');
@@ -35,19 +36,18 @@ const Chat = () => {
     socket.emit('channel-join', id, () => {});
   };
 
-  useEffect(() => {
-    socket.on('channel', (channel) => {
-      let oldChannels = channels.slice(0);
-      oldChannels.forEach((c) => {
-        if (c.id === channel.id) {
-          c.participants = channel.participants;
-        }
-      });
-
-      createNotification();
-      setChannels(oldChannels);
+  socket.on('channel', (channel) => {
+    let oldChannels = channels.slice(0);
+    oldChannels.forEach((c) => {
+      if (c.id === channel.id) {
+        c.participants = channel.participants;
+      }
     });
-  }, [socket]);
+
+    // createNotification();
+    setChannels(oldChannels);
+    setSelectedChannel({ ...channel });
+  });
 
   useEffect(() => {
     socket.on('typingResponse', (data) => setTypingStatus(data));
@@ -71,6 +71,7 @@ const Chat = () => {
       <ChannelList
         channels={channels}
         handleChannelSelect={handleChannelSelect}
+        selectedChannel={selectedChannel}
       />
       <div className="flex flex-col w-full">
         <MessagesPanel

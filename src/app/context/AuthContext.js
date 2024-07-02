@@ -15,8 +15,6 @@ export const AuthContextProvider = ({ children }) => {
 
   const { handleAuth, registerUser } = useAuth(closeModal, setCurrentUser);
 
-  console.log('currentUser', currentUser);
-
   const context = useMemo(
     () => ({
       handleAuth,

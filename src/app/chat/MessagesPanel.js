@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 
 const MessagesPanel = ({ messages, currentUser, typingStatus }) => {
   const lastMessageRef = useRef(null);
@@ -30,9 +30,11 @@ const MessagesPanel = ({ messages, currentUser, typingStatus }) => {
             ),
           )}
         </div>
-        <div className="text-xs italic">
-          <p>{typingStatus}...</p>
-        </div>
+        {!!typingStatus ? (
+          <div className="text-xs italic">
+            <p>{typingStatus}...</p>
+          </div>
+        ) : null}
         <div ref={lastMessageRef} />
       </div>
     </div>
