@@ -33,8 +33,8 @@ const socketIO = require('socket.io')(http, {
 socketIO.on('connection', (socket) => {
   console.log(`⚡: ${socket.id} user just connected!`);
 
-  socket.on('channel-join', (id) => {
-    STATIC_CHANNELS.forEach((c) => {
+  socket.on('channel-join', ({ channels, id }) => {
+    channels.forEach((c) => {
       if (c.id === id) {
         if (c.sockets.indexOf(socket.id) == -1) {
           c.sockets.push(socket.id);
@@ -63,10 +63,4 @@ socketIO.on('connection', (socket) => {
   });
 
   socket.emit('connection', null);
-});
-
-app.get('/getChannels', (req, res) => {
-  res.json({
-    channels: STATIC_CHANNELS,
-  });
 });

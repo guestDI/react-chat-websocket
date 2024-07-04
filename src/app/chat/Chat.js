@@ -7,6 +7,8 @@ import MessagesPanelFooter from './MessagePanelFooter';
 import socketIO from 'socket.io-client';
 import Notification from '../components/Notification';
 import { useAuthContext } from '../context/AuthContext';
+import { db } from '../../database/firebase';
+import { onValue, ref, update } from 'firebase/database';
 
 const SERVER = 'http://127.0.0.1:8081';
 
@@ -32,8 +34,22 @@ const Chat = () => {
     socket.on('messageResponse', (data) => setMessages([...messages, data]));
   }, [socket, messages]);
 
-  const handleChannelSelect = (id) => {
-    socket.emit('channel-join', id, () => {});
+  const handleChannelSelect = (channelId) => {
+    const participantRef = ref(
+      db,
+      `channels/${channelId}/participants/${currentUser.userName}`,
+    );
+
+    update(participantRef, {
+      name: currentUser.displayName,
+      username: currentUser.userName,
+    })
+      .then(() => {
+        socket.emit('channel-join', { channels, channelId }, () => {});
+      })
+      .catch((error) => {
+        console.error('Error adding participant:', error);
+      });
   };
 
   socket.on('channel', (channel) => {
@@ -53,15 +69,17 @@ const Chat = () => {
     socket.on('typingResponse', (data) => setTypingStatus(data));
   }, [socket]);
 
-  const loadChannels = async () => {
-    fetch('http://127.0.0.1:8081/getChannels').then(async (response) => {
-      let data = await response.json();
-      setChannels(data.channels);
-    });
-  };
-
   useEffect(() => {
-    loadChannels();
+    const query = ref(db, 'channels');
+    return onValue(query, (snapshot) => {
+      const data = snapshot.val();
+
+      if (snapshot.exists()) {
+        Object.values(data).map((channel) => {
+          setChannels((channels) => [...channels, channel]);
+        });
+      }
+    });
   }, []);
 
   if (!currentUser) return;

@@ -1,14 +1,12 @@
 'use client';
 
 import Chat from './chat/Chat';
-import Modal from './components/Modal';
 import { AuthContextProvider } from './context/AuthContext';
 
 export default function Home() {
   return (
     <main>
       <AuthContextProvider>
-        <Modal />
         <Chat />
         <div
           id="notifyContainer"

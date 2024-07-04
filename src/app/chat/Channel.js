@@ -5,10 +5,11 @@ import React from 'react';
 const Channel = ({
   id,
   name,
-  participants,
+  participants = {},
   handleChannelSelect,
-  isSelected,
+  isSelected = false,
 }) => {
+  console.log('c', participants);
   return (
     <div
       className={`p-4 border-b border-gray-200 hover:bg-gray-800 cursor-pointer ${isSelected ? 'bg-gray-800' : ''}`}
@@ -17,7 +18,9 @@ const Channel = ({
       <p className={`text-lg font-medium ${isSelected ? 'text-blue-600' : ''}`}>
         {name}
       </p>
-      <span className="text-sm text-gray-500">{participants} participants</span>
+      <span className="text-sm text-gray-500">
+        {Object.keys(participants)?.length} participants
+      </span>
     </div>
   );
 };
