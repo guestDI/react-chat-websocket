@@ -8,7 +8,8 @@ import socketIO from 'socket.io-client';
 import Notification from '../components/Notification';
 import { useAuthContext } from '../context/AuthContext';
 import { db } from '../../database/firebase';
-import { onValue, ref, update } from 'firebase/database';
+import { onValue, ref, set } from 'firebase/database';
+import ChatHeader from './ChatHeader';
 
 const SERVER = 'http://127.0.0.1:8081';
 
@@ -35,13 +36,7 @@ const Chat = () => {
   }, [socket, messages]);
 
   const handleChannelSelect = (channelId) => {
-    const participantRef = ref(
-      db,
-      `channels/${channelId}/participants/${currentUser.userName}`,
-    );
-
-    update(participantRef, {
-      name: currentUser.displayName,
+    set(ref(db, `channels/${channelId}/participants/` + currentUser.id), {
       username: currentUser.userName,
     })
       .then(() => {
@@ -92,6 +87,7 @@ const Chat = () => {
         selectedChannel={selectedChannel}
       />
       <div className="flex flex-col w-full">
+        <ChatHeader />
         <MessagesPanel
           messages={messages}
           currentUser={currentUser}
@@ -99,11 +95,11 @@ const Chat = () => {
         />
         <MessagesPanelFooter socket={socket} currentUser={currentUser} />
       </div>
-      {notifications.map(({ id }) => (
+      {/* {notifications.map(({ id }) => (
         <Notification onClose={() => deleteNotification(id)} key={id}>
           This is a notification!
         </Notification>
-      ))}
+      ))} */}
     </div>
   );
 };

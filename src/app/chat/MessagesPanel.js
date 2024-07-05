@@ -9,9 +9,6 @@ const MessagesPanel = ({ messages, currentUser, typingStatus }) => {
 
   return (
     <div className="flex-1 flex flex-col">
-      <div className="p-4  border-b border-gray-200">
-        <h1 className="text-xl font-semibold">Chat</h1>
-      </div>
       <div className="flex-1 overflow-y-auto p-4">
         <div className="flex flex-col space-y-4">
           {messages.map((message) =>

@@ -19,7 +19,7 @@ const ChannelList = ({ channels, handleChannelSelect, selectedChannel }) => {
 
   return (
     <div className="w-1/4  border-r border-gray-200">
-      <div className="p-4 border-b border-gray-200">
+      <div className="m-6">
         <h1 className="text-xl font-semibold">Channels</h1>
       </div>
       {list}

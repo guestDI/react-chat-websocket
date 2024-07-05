@@ -9,7 +9,6 @@ const Channel = ({
   handleChannelSelect,
   isSelected = false,
 }) => {
-  console.log('c', participants);
   return (
     <div
       className={`p-4 border-b border-gray-200 hover:bg-gray-800 cursor-pointer ${isSelected ? 'bg-gray-800' : ''}`}

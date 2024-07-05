@@ -1,4 +1,3 @@
-import useAuth from '../hooks/useAuth';
 import { createContext, useMemo, useContext, useState } from 'react';
 
 const AuthContext = createContext({});
