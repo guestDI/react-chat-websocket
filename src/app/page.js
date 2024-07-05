@@ -1,18 +1,15 @@
 'use client';
 
-import Chat from './chat/Chat';
-import { AuthContextProvider } from './context/AuthContext';
+import Auth from './auth/page';
 
 export default function Home() {
   return (
     <main>
-      <AuthContextProvider>
-        <Chat />
-        <div
-          id="notifyContainer"
-          className="fixed bottom-2 left-2 overflow-auto w-40 h-20"
-        ></div>
-      </AuthContextProvider>
+      <Auth />
+      <div
+        id="notifyContainer"
+        className="fixed bottom-2 left-2 overflow-auto w-40 h-20"
+      ></div>
     </main>
   );
 }

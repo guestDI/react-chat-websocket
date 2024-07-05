@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { db } from '../../database/firebase';
 import { query, ref, orderByChild, equalTo, get } from 'firebase/database';
 import { useRouter } from 'next/navigation';
+import { useAuthContext } from '../context/AuthContext';
 
 export default function Auth() {
   const [userName, setUsername] = useState('');
   const [error, setError] = useState('');
 
   const router = useRouter();
+  const { setCurrentUser } = useAuthContext();
 
   const onChange = (e) => {
     setUsername(e.target.value);
@@ -27,7 +29,8 @@ export default function Auth() {
       .then((snapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.val();
-          router.push('/');
+          setCurrentUser(data[0]);
+          router.push('/chat');
         } else {
           setError('No user found');
         }

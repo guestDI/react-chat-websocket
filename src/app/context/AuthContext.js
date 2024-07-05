@@ -6,24 +6,14 @@ const AuthContext = createContext({});
 export const useAuthContext = () => useContext(AuthContext);
 
 export const AuthContextProvider = ({ children }) => {
-  const [isOpen, setIsOpen] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
-
-  const closeModal = () => {
-    setIsOpen(false);
-  };
-
-  const { handleAuth, registerUser } = useAuth(closeModal, setCurrentUser);
 
   const context = useMemo(
     () => ({
-      handleAuth,
-      registerUser,
-      isOpen,
-      closeModal,
       currentUser,
+      setCurrentUser,
     }),
-    [handleAuth, registerUser, isOpen, closeModal, currentUser],
+    [currentUser, setCurrentUser],
   );
 
   return (
