@@ -5,7 +5,7 @@ import Channel from './Channel';
 
 const ChannelList = ({ channels, handleChannelSelect, selectedChannel }) => {
   let list = `There is no channels to show`;
-  if (channels) {
+  if (channels.length) {
     list = channels.map((c, index) => (
       <Channel
         key={c.id}

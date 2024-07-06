@@ -10,55 +10,38 @@ import { useAuthContext } from '../context/AuthContext';
 import { db } from '../../database/firebase';
 import { onValue, ref, set } from 'firebase/database';
 import ChatHeader from './ChatHeader';
+import { useStoreContext } from '../context/StoreContext';
+import { redirect } from 'next/navigation';
 
 const SERVER = 'http://127.0.0.1:8081';
 
 const socket = socketIO.connect(SERVER);
 const Chat = () => {
-  const [channels, setChannels] = useState([]);
   const [selectedChannel, setSelectedChannel] = useState({});
   const [messages, setMessages] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [typingStatus, setTypingStatus] = useState('');
 
   const { currentUser } = useAuthContext();
-
-  const createNotification = () =>
-    setNotifications([...notifications, { id: notifications.length }]);
-
-  const deleteNotification = (id) =>
-    setNotifications(
-      notifications.filter((notification) => notification.id !== id),
-    );
+  const { channels, setChannels, updateParticipants } = useStoreContext();
 
   useEffect(() => {
     socket.on('messageResponse', (data) => setMessages([...messages, data]));
   }, [socket, messages]);
 
   const handleChannelSelect = (channelId) => {
+    updateParticipants({ channelId, user: currentUser });
+
     set(ref(db, `channels/${channelId}/participants/` + currentUser.id), {
       username: currentUser.userName,
     })
       .then(() => {
-        socket.emit('channel-join', { channels, channelId }, () => {});
+        console.info('User joined channel');
       })
       .catch((error) => {
         console.error('Error adding participant:', error);
       });
   };
-
-  socket.on('channel', (channel) => {
-    let oldChannels = channels.slice(0);
-    oldChannels.forEach((c) => {
-      if (c.id === channel.id) {
-        c.participants = channel.participants;
-      }
-    });
-
-    // createNotification();
-    setChannels(oldChannels);
-    setSelectedChannel({ ...channel });
-  });
 
   useEffect(() => {
     socket.on('typingResponse', (data) => setTypingStatus(data));
@@ -77,7 +60,9 @@ const Chat = () => {
     });
   }, []);
 
-  if (!currentUser) return;
+  if (!currentUser) {
+    redirect('/auth');
+  }
 
   return (
     <div className="w-full flex h-screen flex-row">
