@@ -1,8 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { db } from '../../database/firebase';
-import { query, ref, orderByChild, equalTo, get } from 'firebase/database';
 import { useRouter } from 'next/navigation';
 import { useAuthContext } from '../context/AuthContext';
 
@@ -17,27 +15,16 @@ export default function Auth() {
     setUsername(e.target.value);
   };
 
-  const onSubmit = () => {
-    const usersRef = ref(db, 'users');
-    const usersQuery = query(
-      usersRef,
-      orderByChild('userName'),
-      equalTo(userName),
-    );
+  const onSubmit = async (e) => {
+    e.preventDefault();
 
-    get(usersQuery)
-      .then((snapshot) => {
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          setCurrentUser(data[0]);
-          router.push('/chat');
-        } else {
-          setError('No user found');
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
+    await fetch('http://localhost:8081/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username: userName }),
+    });
   };
 
   const disabledStyles =

@@ -1,13 +1,18 @@
-import { getDatabase } from 'firebase/database';
-import 'dotenv/config';
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-} from 'firebase/auth';
+const {
+  getDatabase,
+  query,
+  ref,
+  orderByChild,
+  equalTo,
+  get,
+  limitToFirst,
+} = require('firebase/database');
+require('dotenv').config();
+
+const NOT_FOUND = 'NOT_FOUND';
 
 // Import the functions you need from the SDKs you need
-import { initializeApp } from 'firebase/app';
+const { initializeApp } = require('firebase/app');
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -26,14 +31,33 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-export const db = getDatabase(app);
+const db = getDatabase(app);
 
-const auth = getAuth();
+const signIn = async (username) => {
+  const usersRef = ref(db, 'users');
+  const usersQuery = query(
+    usersRef,
+    orderByChild('username'),
+    equalTo(username),
+    limitToFirst(1),
+  );
 
-export const signIn = (email, password) => {
-  return signInWithEmailAndPassword(auth, email, password);
+  return get(usersQuery)
+    .then((snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        return data;
+      } else {
+        return NOT_FOUND;
+      }
+    })
+    .catch((error) => {
+      console.error('Error fetching data:', error);
+      return error;
+    });
 };
 
-export const signUp = (email, password) => {
-  return createUserWithEmailAndPassword(auth, email, password);
+module.exports = {
+  db,
+  signIn,
 };

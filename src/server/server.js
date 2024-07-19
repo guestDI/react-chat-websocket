@@ -1,14 +1,20 @@
 const app = require('express')();
 const http = require('http').createServer(app);
+const authRoutes = require('./routes/auth');
+const bodyParser = require('body-parser');
+const cors = require('cors');
 
 const PORT = 8081;
 
 http.listen(PORT, () => {
   console.log(`listening on *:${PORT}`);
 });
-const cors = require('cors');
 
-app.use(cors());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(cors('*'));
+
+app.use('/auth', authRoutes);
 
 const socketIO = require('socket.io')(http, {
   cors: {
