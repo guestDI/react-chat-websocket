@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-// const User = require('../models/User');
-// const bcrypt = require('bcrypt');
-// const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const { signIn } = require('../../database/firebase');
+const authenticateToken = require('../middleware/authenticateToken');
 
 router.post('/login', async (req, res) => {
   try {
@@ -13,14 +13,15 @@ router.post('/login', async (req, res) => {
     if (!user) {
       return res.status(401).json({ error: 'Authentication failed' });
     }
-    // const passwordMatch = await bcrypt.compare(password, user.password);
-    // if (!passwordMatch) {
-    //   return res.status(401).json({ error: 'Authentication failed' });
-    // }
-    // const token = jwt.sign({ userId: user._id }, 'your-secret-key', {
-    //   expiresIn: '1h',
-    // });
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+    const token = jwt.sign(
+      { userId: user.id, username: user.username },
+      'your-secret-key',
+      {
+        expiresIn: '1h',
+      },
+    );
+
     if (
       req.headers.origin &&
       ['http://localhost:3000', 'http://localhost:3001'].includes(
@@ -29,11 +30,14 @@ router.post('/login', async (req, res) => {
     ) {
       res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
     }
-    return res.status(200).json({ user });
+    return res.status(200).json({ token });
   } catch (error) {
-    console.log('ee', error);
     res.status(500).json({ error: 'Login failed' });
   }
+});
+
+router.get('/protected', authenticateToken, (req, res) => {
+  res.json({ message: 'This is a protected route' });
 });
 
 module.exports = router;
