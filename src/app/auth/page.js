@@ -1,15 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuthContext } from '../context/AuthContext';
+import useLogin from '../hooks/useLogin';
 
 export default function Auth() {
   const [userName, setUsername] = useState('');
   const [error, setError] = useState('');
 
-  const router = useRouter();
-  const { setCurrentUser } = useAuthContext();
+  const { login } = useLogin();
 
   const onChange = (e) => {
     setUsername(e.target.value);
@@ -18,13 +16,7 @@ export default function Auth() {
   const onSubmit = async (e) => {
     e.preventDefault();
 
-    await fetch('http://localhost:8081/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username: userName }),
-    });
+    login(userName);
   };
 
   const disabledStyles =

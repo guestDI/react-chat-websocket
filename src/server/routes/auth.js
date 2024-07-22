@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { signIn } = require('../../database/firebase');
 const authenticateToken = require('../middleware/authenticateToken');
@@ -30,7 +29,7 @@ router.post('/login', async (req, res) => {
     ) {
       res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
     }
-    return res.status(200).json({ token });
+    return res.status(200).json({ username, token });
   } catch (error) {
     res.status(500).json({ error: 'Login failed' });
   }

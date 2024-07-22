@@ -11,7 +11,7 @@ const Channel = ({
 }) => {
   return (
     <div
-      className={`p-4 border-b border-gray-200 hover:bg-gray-800 cursor-pointer ${isSelected ? 'bg-gray-800' : ''}`}
+      className={`p-4 border-b hover:bg-gray-800 cursor-pointer ${isSelected ? 'bg-gray-800' : ''}`}
       onClick={() => handleChannelSelect(id)}
     >
       <p className={`text-lg font-medium ${isSelected ? 'text-blue-600' : ''}`}>

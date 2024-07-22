@@ -24,7 +24,7 @@ const MessagesPanelFooter = ({ socket, currentUser }) => {
   };
 
   return (
-    <div className="p-4 border-t border-gray-200">
+    <div className="p-4 border-t border-gray-200 h-20">
       <div className="flex items-center space-x-4">
         <input
           type="text"

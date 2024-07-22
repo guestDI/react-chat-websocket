@@ -11,7 +11,7 @@ import { db } from '../../database/firebase';
 import { onValue, ref, set } from 'firebase/database';
 import ChatHeader from './ChatHeader';
 import { useStoreContext } from '../context/StoreContext';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 const SERVER = 'http://127.0.0.1:8081';
 
@@ -24,6 +24,7 @@ const Chat = () => {
 
   const { currentUser } = useAuthContext();
   const { channels, setChannels, updateParticipants } = useStoreContext();
+  const router = useRouter();
 
   useEffect(() => {
     socket.on('messageResponse', (data) => setMessages([...messages, data]));
@@ -60,17 +61,31 @@ const Chat = () => {
     });
   }, []);
 
-  if (!currentUser) {
-    redirect('/auth');
-  }
+  // if (!currentUser) {
+  //   redirect('/auth');
+  // }
 
   return (
-    <div className="w-full flex h-screen flex-row">
-      <ChannelList
-        channels={channels}
-        handleChannelSelect={handleChannelSelect}
-        selectedChannel={selectedChannel}
-      />
+    <div className="w-full flex h-screen flex-row bg-gray-900">
+      <div className="flex flex-col w-1/4 border-r border-gray-200 justify-between">
+        <ChannelList
+          channels={channels}
+          handleChannelSelect={handleChannelSelect}
+          selectedChannel={selectedChannel}
+        />
+        <div className="h-20 flex items-center justify-center border-t border-gray-200">
+          <button
+            className={
+              'text-white max-w-40 bg-slate-500 active:bg-slate-700 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none'
+            }
+            type="button"
+            onClick={() => router.push('/profile')}
+          >
+            Profile
+          </button>
+        </div>
+      </div>
+
       <div className="flex flex-col w-full">
         <ChatHeader />
         <MessagesPanel
@@ -80,11 +95,6 @@ const Chat = () => {
         />
         <MessagesPanelFooter socket={socket} currentUser={currentUser} />
       </div>
-      {/* {notifications.map(({ id }) => (
-        <Notification onClose={() => deleteNotification(id)} key={id}>
-          This is a notification!
-        </Notification>
-      ))} */}
     </div>
   );
 };
