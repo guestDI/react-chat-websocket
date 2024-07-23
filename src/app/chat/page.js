@@ -5,7 +5,6 @@ import ChannelList from './ChannelList';
 import MessagesPanel from './MessagesPanel';
 import MessagesPanelFooter from './MessagePanelFooter';
 import socketIO from 'socket.io-client';
-import Notification from '../components/Notification';
 import { useAuthContext } from '../context/AuthContext';
 import { db } from '../../database/firebase';
 import { onValue, ref, set } from 'firebase/database';
@@ -19,7 +18,6 @@ const socket = socketIO.connect(SERVER);
 const Chat = () => {
   const [selectedChannel, setSelectedChannel] = useState({});
   const [messages, setMessages] = useState([]);
-  const [notifications, setNotifications] = useState([]);
   const [typingStatus, setTypingStatus] = useState('');
 
   const { currentUser } = useAuthContext();
@@ -60,10 +58,6 @@ const Chat = () => {
       }
     });
   }, []);
-
-  // if (!currentUser) {
-  //   redirect('/auth');
-  // }
 
   return (
     <div className="w-full flex h-screen flex-row bg-gray-900">

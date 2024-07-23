@@ -15,7 +15,7 @@ const useLogin = () => {
     const user = await response.json();
 
     if (user) {
-      Cookies.set('access_token', JSON.stringify(user.token), { expires: 1 });
+      Cookies.set('access_token', user.token);
       router.push('/chat');
     }
   };
