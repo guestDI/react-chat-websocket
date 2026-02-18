@@ -6,58 +6,157 @@ import MessagesPanel from './MessagesPanel';
 import MessagesPanelFooter from './MessagePanelFooter';
 import socketIO from 'socket.io-client';
 import { useAuthContext } from '../context/AuthContext';
-import { db } from '../../database/firebase';
+import { db, initializeChannels } from '../../database/firebase';
 import { onValue, ref, set } from 'firebase/database';
 import ChatHeader from './ChatHeader';
 import { useStoreContext } from '../context/StoreContext';
 import { useRouter } from 'next/navigation';
 
 const SERVER = 'http://127.0.0.1:8081';
-
 const socket = socketIO.connect(SERVER);
+
 const Chat = () => {
-  const [selectedChannel, setSelectedChannel] = useState({});
+  const [selectedChannel, setSelectedChannel] = useState(null);
   const [messages, setMessages] = useState([]);
   const [typingStatus, setTypingStatus] = useState('');
+  const [channelsLoaded, setChannelsLoaded] = useState(false);
 
-  const { currentUser } = useAuthContext();
-  const { channels, setChannels, updateParticipants } = useStoreContext();
+  const { currentUser, loading } = useAuthContext();
+  const { channels, setChannels } = useStoreContext();
   const router = useRouter();
 
+  // Инициализируй каналы один раз
   useEffect(() => {
-    socket.on('messageResponse', (data) => setMessages([...messages, data]));
-  }, [socket, messages]);
+    initializeChannels();
+  }, []);
+
+  // Загрузи каналы из Firebase
+  useEffect(() => {
+    if (channelsLoaded) return; // Не загружай повторно
+
+    const query = ref(db, 'channels');
+    const unsubscribe = onValue(
+      query,
+      (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const channelList = Object.entries(data).map(([key, value]) => ({
+            id: key,
+            ...value,
+          }));
+          setChannels(channelList);
+          setChannelsLoaded(true);
+          console.log('Channels loaded:', channelList);
+        }
+      },
+      (error) => {
+        console.error('Error loading channels:', error);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [channelsLoaded]); // Удалил setChannels из зависимостей
+
+  // Сообщения
+  useEffect(() => {
+    const handleMessage = (data) => {
+      setMessages((prev) => [...prev, data]);
+    };
+
+    socket.on('messageResponse', handleMessage);
+    return () => socket.off('messageResponse', handleMessage);
+  }, []);
+
+  // Статус печати
+  useEffect(() => {
+    const handleTyping = (data) => {
+      setTypingStatus(data);
+    };
+
+    socket.on('typingResponse', handleTyping);
+    return () => socket.off('typingResponse', handleTyping);
+  }, []);
 
   const handleChannelSelect = (channelId) => {
-    updateParticipants({ channelId, user: currentUser });
+    if (!currentUser) {
+      console.error('currentUser is undefined');
+      return;
+    }
 
-    set(ref(db, `channels/${channelId}/participants/` + currentUser.id), {
-      username: currentUser.userName,
-    })
+    setSelectedChannel(channelId);
+  };
+
+  const handleJoinChannel = () => {
+    if (!currentUser) {
+      console.error('currentUser is undefined');
+      return;
+    }
+
+    set(
+      ref(db, `channels/${selectedChannel}/participants/${currentUser.id}`),
+      {
+        username: currentUser.userName,
+        displayName: currentUser.displayName,
+        joinedAt: new Date().toISOString(),
+      }
+    )
       .then(() => {
-        console.info('User joined channel');
+        console.log(
+          `User ${currentUser.userName} joined channel ${selectedChannel}`
+        );
+        socket.emit('joinChannel', { selectedChannel, user: currentUser });
       })
       .catch((error) => {
         console.error('Error adding participant:', error);
       });
-  };
+  }
 
-  useEffect(() => {
-    socket.on('typingResponse', (data) => setTypingStatus(data));
-  }, [socket]);
+  const handleLeaveChannel = async () => {
+  if (!selectedChannel || !currentUser) return;
 
-  useEffect(() => {
-    const query = ref(db, 'channels');
-    return onValue(query, (snapshot) => {
-      const data = snapshot.val();
+  if (!window.confirm(`Are you sure you want to leave this channel?`)) {
+    return;
+  }
 
-      if (snapshot.exists()) {
-        Object.values(data).map((channel) => {
-          setChannels((channels) => [...channels, channel]);
-        });
-      }
+  try {
+    const participantRef = ref(
+      db,
+      `channels/${selectedChannel}/participants/${currentUser.id}`
+    );
+    await set(participantRef, null);
+
+    console.log(
+      `User ${currentUser.userName} left channel ${selectedChannel}`
+    );
+
+    socket.emit('leaveChannel', {
+      channelId: selectedChannel,
+      user: currentUser,
     });
-  }, []);
+
+    setMessages([]);
+    setSelectedChannel(null);
+    setTypingStatus('');
+  } catch (error) {
+    console.error('Error leaving channel:', error);
+  }
+};
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        Please login first
+      </div>
+    );
+  }
 
   return (
     <div className="w-full flex h-screen flex-row bg-gray-900">
@@ -69,25 +168,32 @@ const Chat = () => {
         />
         <div className="h-20 flex items-center justify-center border-t border-gray-200">
           <button
-            className={
-              'text-white max-w-40 bg-slate-500 active:bg-slate-700 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none'
-            }
+            className="text-white max-w-40 bg-slate-500 active:bg-slate-700 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none"
             type="button"
             onClick={() => router.push('/profile')}
           >
-            Profile
+            {currentUser?.displayName}
           </button>
         </div>
       </div>
 
       <div className="flex flex-col w-full">
-        <ChatHeader />
+        <ChatHeader 
+          channelName={channels.find(c => c.id === selectedChannel)?.name} 
+          isUserInChannel={channels.find(c => c.id === selectedChannel)?.participants?.[currentUser.id]}
+          onLeaveChannel={handleLeaveChannel}
+          onJoinChannel={handleJoinChannel}
+          />
         <MessagesPanel
           messages={messages}
           currentUser={currentUser}
           typingStatus={typingStatus}
         />
-        <MessagesPanelFooter socket={socket} currentUser={currentUser} />
+        <MessagesPanelFooter
+          socket={socket}
+          currentUser={currentUser}
+          selectedChannelId={selectedChannel}
+        />
       </div>
     </div>
   );

@@ -37,3 +37,14 @@ socketIO.on('connection', (socket) => {
 
   socket.emit('connection', null);
 });
+
+socketIO.on('leaveChannel', (data) => {
+  console.log(
+    `User ${data.user.userName} left channel ${data.channelId}`
+  );
+  
+  socketIO.to(data.channelId).emit('userLeftChannel', {
+    user: data.user,
+    channelId: data.channelId,
+  });
+});

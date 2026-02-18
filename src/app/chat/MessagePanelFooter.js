@@ -1,22 +1,32 @@
 'use client';
 
 import React, { useState } from 'react';
+import Cookies from 'js-cookie';
 
-const MessagesPanelFooter = ({ socket, currentUser }) => {
+const MessagesPanelFooter = ({ socket, currentUser, selectedChannelId }) => {
   const [message, setMessage] = useState('');
 
-  const handleTyping = () =>
-    socket.emit('typing', `${currentUser.displayName} is typing`);
+  const handleTyping = () => {
+    if (currentUser?.displayName) {
+      socket.emit('typing', {
+        channelId: selectedChannelId,
+        message: `${currentUser.displayName} is typing`,
+      });
+    }
+  };
 
   const handleSendMessage = (e) => {
     e.preventDefault();
 
-    if (message.trim() && localStorage.getItem('userName')) {
+    if (message.trim() && currentUser?.userName && selectedChannelId) {
       socket.emit('message', {
         text: message,
         userName: currentUser.userName,
+        displayName: currentUser.displayName,
+        channelId: selectedChannelId,
         id: `${socket.id}${Math.random()}`,
         socketID: socket.id,
+        timestamp: new Date().toISOString(),
       });
     }
 

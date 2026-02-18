@@ -3,7 +3,6 @@
 import React from 'react';
 
 const Channel = ({
-  id,
   name,
   participants = {},
   handleChannelSelect,
@@ -12,7 +11,7 @@ const Channel = ({
   return (
     <div
       className={`p-4 border-b hover:bg-gray-800 cursor-pointer ${isSelected ? 'bg-gray-800' : ''}`}
-      onClick={() => handleChannelSelect(id)}
+      onClick={handleChannelSelect}
     >
       <p className={`text-lg font-medium ${isSelected ? 'text-blue-600' : ''}`}>
         {name}

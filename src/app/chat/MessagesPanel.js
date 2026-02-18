@@ -27,11 +27,11 @@ const MessagesPanel = ({ messages, currentUser, typingStatus }) => {
             ),
           )}
         </div>
-        {!!typingStatus ? (
+        {/* {!!typingStatus ? (
           <div className="text-xs italic">
-            <p>{typingStatus}...</p>
+            <p>{typingStatus?.message}...</p>
           </div>
-        ) : null}
+        ) : null} */}
         <div ref={lastMessageRef} />
       </div>
     </div>

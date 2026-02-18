@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import useLogin from '../hooks/useLogin';
+import Link from 'next/link';
 
 export default function Auth() {
   const [userName, setUsername] = useState('');
@@ -23,20 +24,19 @@ export default function Auth() {
     'bg-gray-300 px-4 py-2 rounded-md cursor-not-allowed opacity-50';
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center bg-transparent">
-      <div className="flex justify-center items-center overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
-        <div className="relative w-1/3 my-6 mx-auto ">
-          <div className="rounded-lg shadow-lg relative flex flex-col w-full outline-none focus:outline-none border border-solid border-gray-300 ">
-            <div className="flex items-start justify-between p-5 border-b border-solid border-gray-300 rounded-t ">
-              <h3 className="text-2xl font=semibold">User Info</h3>
-            </div>
-            <form className="shadow-md rounded px-8 pt-6 pb-8 w-full">
+    <div className="min-h-screen flex items-center justify-center bg-gray-900">
+      <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-96">
+            <h1 className="text-3xl font-bold text-white mb-6 text-center">
+              Login
+            </h1>
+
+            <form className="shadow-md rounded pt-6 pb-8 w-full" onSubmit={onSubmit}>
               <div>
-                <label className="block text-sm mb-1">Username</label>
+                <label className="text-white block mb-2">Username</label>
                 <input
                   value={userName}
                   onChange={onChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-1 text-black"
+                  className="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500"
                 />
                 {error ? (
                   <span className="text-xs text-red-700">{error}</span>
@@ -52,7 +52,7 @@ export default function Auth() {
                 Reset
               </button>
               <button
-                className={`text-white bg-blue-500 active:bg-blue-700 ${!userName.length ? disabledStyles : ''} font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1`}
+                className="w-full bg-blue-500 hover:bg-blue-600  disabled:bg-gray-500 text-white font-bold py-3 rounded-lg transition"
                 type="button"
                 onClick={onSubmit}
                 disabled={!userName.length}
@@ -60,8 +60,12 @@ export default function Auth() {
                 Login
               </button>
             </div>
-          </div>
-        </div>
+          <p className="text-gray-400 mt-4 text-center">
+          Don't have an account yet?{' '}
+          <Link href="/register" className="text-blue-500 hover:text-blue-400">
+            Register here
+          </Link>
+        </p>
       </div>
     </div>
   );

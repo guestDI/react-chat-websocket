@@ -5,14 +5,21 @@ import Channel from './Channel';
 
 const ChannelList = ({ channels, handleChannelSelect, selectedChannel }) => {
   let list = `There is no channels to show`;
+
+  const selectChannel = (id) => {
+    if (handleChannelSelect) {
+      handleChannelSelect(id);
+    }
+  }
+
   if (channels.length) {
-    list = channels.map((c, index) => (
+    list = channels.map((c) => (
       <Channel
         key={c.id}
-        id={index}
         name={c.name}
         participants={c.participants}
-        handleChannelSelect={handleChannelSelect}
+        isSelected={selectedChannel === c.id}
+        handleChannelSelect={() => selectChannel(c.id)}
       />
     ));
   }
